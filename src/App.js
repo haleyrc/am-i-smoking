@@ -5,60 +5,82 @@ import styled from 'react-emotion'
 import './style.css'
 
 class App extends Component {
+  state = {
+    loading: true
+  }
+
+  componentDidMount = () => {
+    setTimeout(() => this.setState({
+      loading: false
+    }, () => console.log(this.state)), 2000)
+  }
+
   render() {
-    return <Main>
-      <Title>Am I Smoking</Title>
-      <Cards>
-        <Card>
-          <CardHeader image="time">
-            <CardTitle>When</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <Time>10:00 AM</Time>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardHeader image="meat">
-            <CardTitle>Meat</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <ItemList>
-              <Item>Pork loin</Item>
-              <Item>Sweet Italian sausage</Item>
-              <Item>Hot Italian sausage</Item>
-            </ItemList>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardHeader image="sides">
-            <CardTitle>Sides</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <ItemList>
-              <Item>Stuffed peppers</Item>
-              <Item>Rosemary garlic potatoes</Item>
-              <Item>Sauteed onions</Item>
-            </ItemList>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardHeader image="beer">
-            <CardTitle>Beer</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <ItemList>
-              <Item>Guiness</Item>
-              <Item>Samoa This</Item>
-              <Item>Busch Lite</Item>
-            </ItemList>
-          </CardBody>
-        </Card>
-      </Cards>
-    </Main>
+    return this.state.loading
+      ? <Splash/>
+      : (
+        <Main>
+          <Title>Am I Smoking</Title>
+          <Cards>
+            <Card>
+              <CardHeader image="time">
+                <CardTitle>When</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <Time>10:00 AM</Time>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardHeader image="meat">
+                <CardTitle>Meat</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <ItemList>
+                  <Item>Pork loin</Item>
+                  <Item>Sweet Italian sausage</Item>
+                  <Item>Hot Italian sausage</Item>
+                </ItemList>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardHeader image="sides">
+                <CardTitle>Sides</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <ItemList>
+                  <Item>Stuffed peppers</Item>
+                  <Item>Rosemary garlic potatoes</Item>
+                  <Item>Sauteed onions</Item>
+                </ItemList>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardHeader image="beer">
+                <CardTitle>Beer</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <ItemList>
+                  <Item>Guiness</Item>
+                  <Item>Samoa This</Item>
+                  <Item>Busch Lite</Item>
+                </ItemList>
+              </CardBody>
+            </Card>
+          </Cards>
+        </Main>
+      )
   }
 }
 
 export default App
+
+const Splash = styled('div')`
+  height: 100vh;
+  background: url('images/splash.jpg');
+  background-size: cover;
+  background-position: center;
+  filter: blur(10px);
+`
 
 const Time = styled('h3')`
   font-size: 36px;
@@ -143,6 +165,11 @@ const CardTitle = styled('h2')`
   align-items: center;
   padding-top: 10px;
   padding-bottom: 10px;
+    
+  @media(min-width: 1000px) {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
 `
 
 const Main = styled('div')`
