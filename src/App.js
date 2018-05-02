@@ -1,78 +1,106 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 
 import styled from 'react-emotion'
+import firebase from 'firebase'
 
 import './style.css'
 
 class App extends Component {
   state = {
-    loading: true
+    loading: false,
+    meats: null
   }
 
   componentDidMount = () => {
-    setTimeout(() => this.setState({
-      loading: false
-    }, () => console.log(this.state)), 2000)
+    const me = this
+    const ref = firebase.database().ref('meat')
+    ref.on('value', function (snapshot) {
+      console.log(snapshot.val())
+      me.setState({ meats: Object.values(snapshot.val()) })
+    })
   }
 
-  render() {
-    return this.state.loading
-      ? <Splash/>
-      : (
-        <Main>
-          <Title>Am I Smoking</Title>
-          <Cards>
+  render () {
+    return this.state.loading ? (
+      <Splash />
+    ) : (
+      <Main>
+        <Title>Am I Smoking</Title>
+        <Cards>
+          <Card>
+            <CardHeader image='time'>
+              <CardTitle>When</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <Time>10:00 AM</Time>
+            </CardBody>
+          </Card>
+          {this.state.meats && (
             <Card>
-              <CardHeader image="time">
-                <CardTitle>When</CardTitle>
-              </CardHeader>
-              <CardBody>
-                <Time>10:00 AM</Time>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardHeader image="meat">
+              <CardHeader image='meat'>
                 <CardTitle>Meat</CardTitle>
               </CardHeader>
               <CardBody>
                 <ItemList>
-                  <Item>Pork loin</Item>
-                  <Item>Sweet Italian sausage</Item>
-                  <Item>Hot Italian sausage</Item>
+                  {this.state.meats.map((meat) => (
+                    <Item key={meat}>{meat}</Item>
+                  ))}
                 </ItemList>
               </CardBody>
+              <CardFooter>
+                <NewMeat onClick={addMeat}>+</NewMeat>
+              </CardFooter>
             </Card>
-            <Card>
-              <CardHeader image="sides">
-                <CardTitle>Sides</CardTitle>
-              </CardHeader>
-              <CardBody>
-                <ItemList>
-                  <Item>Stuffed peppers</Item>
-                  <Item>Rosemary garlic potatoes</Item>
-                  <Item>Sauteed onions</Item>
-                </ItemList>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardHeader image="beer">
-                <CardTitle>Beer</CardTitle>
-              </CardHeader>
-              <CardBody>
-                <ItemList>
-                  <Item>Guiness</Item>
-                  <Item>Samoa This</Item>
-                  <Item>Busch Lite</Item>
-                </ItemList>
-              </CardBody>
-            </Card>
-          </Cards>
-        </Main>
-      )
+          )}
+          <Card>
+            <CardHeader image='sides'>
+              <CardTitle>Sides</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <ItemList>
+                <Item>Stuffed peppers</Item>
+                <Item>Rosemary garlic potatoes</Item>
+                <Item>Sauteed onions</Item>
+              </ItemList>
+            </CardBody>
+          </Card>
+          <Card>
+            <CardHeader image='beer'>
+              <CardTitle>Beer</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <ItemList>
+                <Item>Guiness</Item>
+                <Item>Samoa This</Item>
+                <Item>Busch Lite</Item>
+              </ItemList>
+            </CardBody>
+          </Card>
+        </Cards>
+      </Main>
+    )
   }
 }
 
 export default App
+
+const addMeat = (evt) => {
+  const ref = firebase.database().ref('meat')
+  ref.push('Baby legs')
+}
+
+const NewMeat = styled('button')`
+  background: none;
+  border: none;
+  font-family: 'Cabin Sketch', cursive;
+  color: rgba(255,255,255,1);
+  font-size: 48px;
+  height: 30px;
+  margin-top: -20px;
+  margin-bottom: 10px;
+  line-height: 40px;
+  padding: 0 10px;
+`
 
 const Splash = styled('div')`
   height: 100vh;
@@ -103,9 +131,16 @@ const ItemList = styled('ul')`
   list-style-type: none;
 `
 const Item = styled('li')`
+  width: 200px;
   @media(min-width: 1000px) {
     font-size: 24px;
   }
+`
+
+const CardFooter = styled('div')`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
 `
 
 const CardBody = styled('div')`
@@ -146,11 +181,14 @@ const Title = styled('h1')`
   padding-top: 5px;
   padding-bottom: 5px;
   background-color: #424242;
+  @media(max-width: 367px) {
+    font-size: 36px;
+  }
 `
 
 const CardHeader = styled('div')`
   background-color: #424242;
-  background: url('${props => `images/${props.image}.jpg`}');
+  background: url('${(props) => `images/${props.image}.jpg`}');
   background-size: cover;
   background-position: center;
 `
@@ -169,6 +207,10 @@ const CardTitle = styled('h2')`
   @media(min-width: 1000px) {
     padding-top: 20px;
     padding-bottom: 20px;
+  }
+
+  @media(max-width: 367px) {
+    font-size: 24px;
   }
 `
 
