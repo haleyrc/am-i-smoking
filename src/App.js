@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import styled from 'react-emotion'
 import firebase from 'firebase'
 import Moment from 'react-moment'
+import moment from 'moment'
 
 import ConnectedCard from './Card'
 import Calendar from './Calendar'
@@ -28,7 +29,12 @@ class App extends Component {
     })
   }
 
-  setNextEvent = (date) => this.state.ref.set(this.state.pendingNext.toString())
+  setNextEvent = (date) =>
+    this.state.ref.set(
+      this.state.pendingNext
+        ? this.state.pendingNext.toString()
+        : moment().toString()
+    )
 
   clearEvent = () => this.state.ref.remove()
 
@@ -38,9 +44,13 @@ class App extends Component {
     ) : (
       <Main>
         <Title>Am I Smoking</Title>
-        <Calendar onChange={(date) => this.setState({ pendingNext: date })} />
-        <button onClick={this.setNextEvent}>Schedule</button>
-        <button onClick={this.clearEvent}>Clear</button>
+        <Scheduler>
+          <Calendar onChange={(date) => this.setState({ pendingNext: date })} />
+          <ScheduleButtons>
+            <CabinButton onClick={this.clearEvent}>Clear</CabinButton>
+            <CabinButton onClick={this.setNextEvent}>Schedule</CabinButton>
+          </ScheduleButtons>
+        </Scheduler>
         {this.state.upcoming ? (
           <Cards>
             <Card>
@@ -71,6 +81,38 @@ class App extends Component {
 }
 
 export default App
+
+const Scheduler = styled('div')`
+  display: flex;
+  flex-direction: row;
+  padding: 20px 60px;
+  justify-content: space-between;
+
+  & > :first-child {
+    flex: 1;
+  }
+`
+
+const ScheduleButtons = styled('div')`
+  display: flex;
+  flex-direction: row;
+`
+
+const CabinButton = styled('button')`
+  font-family: 'Cabin Sketch', cursive;
+  font-size: 24px;
+  background: none;
+  border: 3px solid white;
+  color: white;
+  padding: 5px 5px;
+  border-radius: 10px;
+  margin-left: 20px;
+
+  :hover {
+    background: #424242;
+    cursor: pointer;
+  }
+`
 
 const Splash = styled('div')`
   height: 100vh;
