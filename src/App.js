@@ -2,15 +2,35 @@ import React, { Component } from 'react'
 
 import styled from 'react-emotion'
 import firebase from 'firebase'
+import Moment from 'react-moment'
 
 import ConnectedCard from './Card'
+import Calendar from './Calendar'
 import './style.css'
 
 class App extends Component {
-  state = { loading: false }
+  state = { loading: true, upcoming: true, next: null, pendingNext: null }
   componentDidCatch = (error, info) => {
     console.log({ error, info })
   }
+
+  componentDidMount = () => {
+    const ref = firebase.database().ref('nextEvent')
+    ref.on('value', (snapshot) => {
+      const next = new Date(snapshot.val())
+      const now = new Date()
+      this.setState({
+        upcoming: next > now,
+        next: next,
+        loading: false,
+        ref
+      })
+    })
+  }
+
+  setNextEvent = (date) => this.state.ref.set(this.state.pendingNext.toString())
+
+  clearEvent = () => this.state.ref.remove()
 
   render () {
     return this.state.loading ? (
@@ -18,19 +38,33 @@ class App extends Component {
     ) : (
       <Main>
         <Title>Am I Smoking</Title>
-        <Cards>
-          <Card>
-            <CardHeader image='time'>
-              <CardTitle>When</CardTitle>
-            </CardHeader>
-            <CardBody>
-              <Time>10:00 AM</Time>
-            </CardBody>
-          </Card>
-          <ConnectedCard subject='Meat' />
-          <ConnectedCard subject='Sides' />
-          <ConnectedCard subject='Beer' />
-        </Cards>
+        <Calendar onChange={(date) => this.setState({ pendingNext: date })} />
+        <button onClick={this.setNextEvent}>Schedule</button>
+        <button onClick={this.clearEvent}>Clear</button>
+        {this.state.upcoming ? (
+          <Cards>
+            <Card>
+              <CardHeader image='time'>
+                <CardTitle>When</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <Time>
+                  <Moment format='MM/DD/YYYY'>
+                    {this.state.next.toString()}
+                  </Moment>
+                </Time>
+                <Time>
+                  <Moment format='HH:mm A'>{this.state.next.toString()}</Moment>
+                </Time>
+              </CardBody>
+            </Card>
+            <ConnectedCard subject='Meat' />
+            <ConnectedCard subject='Sides' />
+            <ConnectedCard subject='Beer' />
+          </Cards>
+        ) : (
+          <div>No Upcoming Smoking Events</div>
+        )}
       </Main>
     )
   }
@@ -69,6 +103,7 @@ const CardBody = styled('div')`
   color: white;
   font-size: 20px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   flex: 1;

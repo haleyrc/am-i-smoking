@@ -5,15 +5,37 @@ import firebase from 'firebase'
 class ConnectedCard extends Component {
   state = {
     loading: true,
-    items: {}
+    items: {},
+    ref: null
   }
 
   componentDidMount = () => {
-    const me = this
+    console.log(`${this.props.subject} mounted`)
     const ref = firebase.database().ref(this.props.subject.toLowerCase())
-    ref.on('value', function (snapshot) {
-      me.setState({ loading: false, items: snapshot.val() || {} })
+    ref.on('value', (snapshot) => {
+      this.setState({ ref, loading: false, items: snapshot.val() || {} }, () =>
+        console.log(`${this.props.subject} loaded from firebase`)
+      )
     })
+  }
+
+  componentWillUnmount = () => {
+    this.state.ref.off('value')
+  }
+
+  removeItem = (key) => {
+    this.state.ref.child(key).remove()
+  }
+
+  addItem = () => {
+    const item = prompt(
+      `What ${this.props.subject.toLowerCase()} would you like to add?`,
+      ''
+    )
+    if (item == null || item === '') {
+      return
+    }
+    this.state.ref.push(item)
   }
 
   render () {
@@ -31,7 +53,11 @@ class ConnectedCard extends Component {
           ) : (
             <ItemList>
               {Object.keys(items).length ? (
-                Object.keys(items).map((key) => <Item key={key}>{items[key]}</Item>)
+                Object.keys(items).map((key) => (
+                  <Item key={key} onClick={() => this.removeItem(key)}>
+                    {items[key]}
+                  </Item>
+                ))
               ) : (
                 <Item>No {subject.toLowerCase()} added yet.</Item>
               )}
@@ -39,7 +65,7 @@ class ConnectedCard extends Component {
           )}
         </CardBody>
         <CardFooter>
-          <NewItem onClick={() => addItem(subject.toLowerCase())}>+</NewItem>
+          <NewItem onClick={this.addItem}>+</NewItem>
         </CardFooter>
       </Card>
     )
@@ -47,11 +73,6 @@ class ConnectedCard extends Component {
 }
 
 export default ConnectedCard
-
-const addItem = (to) => {
-  const ref = firebase.database().ref(to)
-  ref.push('Frog legs')
-}
 
 const NewItem = styled('button')`
   background: none;
