@@ -1,56 +1,105 @@
 import React, { Component } from 'react'
 
 import styled from 'react-emotion'
-import firebase from 'firebase'
 import Moment from 'react-moment'
 import moment from 'moment'
 
+import firebase, { auth, provider } from './firebase'
 import ConnectedCard from './Card'
 import Calendar from './Calendar'
 import './style.css'
 
 class App extends Component {
-  state = { loading: true, upcoming: true, next: null, pendingNext: null }
+  state = { loading: true, upcoming: true, next: null, pendingNext: null, user: null }
   componentDidCatch = (error, info) => {
     console.log({ error, info })
   }
 
-  componentDidMount = () => {
-    const ref = firebase.database().ref('nextEvent')
-    ref.on('value', (snapshot) => {
+  componentDidMount = async () => {
+    const nextEventRef = firebase.database().ref('nextEvent')
+
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        console.log({ user })
+        const userRef = firebase.database().ref('users').child(user.uid)
+        const snapshot = await userRef.once('value')
+        const saved = snapshot.val()
+        console.log({ saved })
+        const record = {
+          email: user.email,
+          name: user.displayName,
+          photo: user.photoURL,
+          admin: saved ? saved.admin || false : false
+        }
+        await userRef.set(record)
+        this.setState({ user: record })
+      }
+    })
+
+    nextEventRef.on('value', (snapshot) => {
       const next = new Date(snapshot.val())
       const now = new Date()
       this.setState({
         upcoming: next > now,
         next: next,
-        loading: false,
-        ref
+        loading: false
       })
     })
   }
 
   setNextEvent = (date) =>
-    this.state.ref.set(
-      this.state.pendingNext
-        ? this.state.pendingNext.toString()
-        : moment().toString()
-    )
+    firebase
+      .database()
+      .ref('nextEvent')
+      .set(this.state.pendingNext ? this.state.pendingNext.toString() : moment().toString())
 
-  clearEvent = () => this.state.ref.remove()
+  clearEvent = () => firebase.database().ref('nextEvent').remove()
+
+  login = () => {
+    auth.signInWithPopup(provider).then((result) => {
+      console.log(result)
+      const user = result.user
+      firebase.database().ref('users').child(user.uid).set(
+        {
+          email: user.email,
+          name: user.displayName,
+          photo: user.photoURL
+        },
+        this.setState({ user })
+      )
+    })
+  }
+
+  logout = () => {
+    auth.signOut().then(() => {
+      this.setState({ user: null })
+    })
+  }
 
   render () {
     return this.state.loading ? (
       <Splash />
     ) : (
       <Main>
-        <Title>Am I Smoking</Title>
-        <Scheduler>
-          <Calendar onChange={(date) => this.setState({ pendingNext: date })} />
-          <ScheduleButtons>
-            <CabinButton onClick={this.clearEvent}>Clear</CabinButton>
-            <CabinButton onClick={this.setNextEvent}>Schedule</CabinButton>
-          </ScheduleButtons>
-        </Scheduler>
+        <AppBar>
+          <Greeting>{this.state.user ? `Hello, ${this.state.user.name}!` : null}</Greeting>
+          <Title>Am I Smoking</Title>
+          {this.state.user ? (
+            <CabinButton onClick={this.logout}>Log Out</CabinButton>
+          ) : (
+            <CabinButton onClick={this.login}>Log In</CabinButton>
+          )}
+        </AppBar>
+        {this.state.user &&
+        this.state.user.admin && (
+          <Scheduler>
+            <Calendar onChange={(date) => this.setState({ pendingNext: date })} />
+            <ScheduleButtons>
+              <CabinButton onClick={this.clearEvent}>Clear</CabinButton>
+              <CabinButton onClick={this.setNextEvent}>Schedule</CabinButton>
+            </ScheduleButtons>
+          </Scheduler>
+        )}
         {this.state.upcoming ? (
           <Cards>
             <Card>
@@ -59,9 +108,7 @@ class App extends Component {
               </CardHeader>
               <CardBody>
                 <Time>
-                  <Moment format='MM/DD/YYYY'>
-                    {this.state.next.toString()}
-                  </Moment>
+                  <Moment format='MM/DD/YYYY'>{this.state.next.toString()}</Moment>
                 </Time>
                 <Time>
                   <Moment format='HH:mm A'>{this.state.next.toString()}</Moment>
@@ -82,6 +129,16 @@ class App extends Component {
 
 export default App
 
+const Greeting = styled('h4')`
+    font-size: 24px;
+    font-weight: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,.7);
+    margin-left: 30px;
+`
+
 const Scheduler = styled('div')`
   display: flex;
   flex-direction: row;
@@ -99,17 +156,16 @@ const ScheduleButtons = styled('div')`
 `
 
 const CabinButton = styled('button')`
-  font-family: 'Cabin Sketch', cursive;
+  font-family: 'Oswald', sans-serif;
   font-size: 24px;
   background: none;
-  border: 3px solid white;
   color: white;
-  padding: 5px 5px;
-  border-radius: 10px;
+  border: none;
+  padding: 0 10px;
   margin-left: 20px;
 
   :hover {
-    background: #424242;
+    text-decoration: underline;
     cursor: pointer;
   }
 `
@@ -172,15 +228,19 @@ const Title = styled('h1')`
   color: rgba(255,255,255,.7);
   font-size: 52px;
   text-transform: uppercase;
-  display: flex;
-  justify-content: center;
-  alignItems: center;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  background-color: #424242;
+  text-align: center;
+
   @media(max-width: 367px) {
     font-size: 36px;
   }
+`
+
+const AppBar = styled('div')`
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  background-color: #424242;
 `
 
 const CardHeader = styled('div')`
