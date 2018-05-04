@@ -7,35 +7,32 @@ import moment from 'moment'
 import firebase, { auth, provider } from './firebase'
 import ConnectedCard from './Card'
 import Calendar from './Calendar'
+import Map from './Map'
 import './style.css'
 
 class App extends Component {
-  state = { loading: true, upcoming: true, next: null, pendingNext: null, user: null }
+  state = {
+    loading: true,
+    upcoming: true,
+    next: null,
+    pendingNext: null,
+    user: null
+  }
   componentDidCatch = (error, info) => {
     console.log({ error, info })
   }
 
   componentDidMount = async () => {
-    const nextEventRef = firebase.database().ref('nextEvent')
-
-    auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        console.log({ user })
-        const userRef = firebase.database().ref('users').child(user.uid)
-        const snapshot = await userRef.once('value')
-        const saved = snapshot.val()
-        console.log({ saved })
-        const record = {
-          email: user.email,
-          name: user.displayName,
-          photo: user.photoURL,
-          admin: saved ? saved.admin || false : false
-        }
-        await userRef.set(record)
-        this.setState({ user: record })
+    auth.onAuthStateChanged(async (lastUser) => {
+      if (lastUser) {
+        const userRef = firebase.database().ref('users').child(lastUser.uid)
+        userRef.on('value', (snapshot) => {
+          this.setState({ user: snapshot.val() })
+        })
       }
     })
 
+    const nextEventRef = firebase.database().ref('nextEvent')
     nextEventRef.on('value', (snapshot) => {
       const next = new Date(snapshot.val())
       const now = new Date()
@@ -51,30 +48,45 @@ class App extends Component {
     firebase
       .database()
       .ref('nextEvent')
-      .set(this.state.pendingNext ? this.state.pendingNext.toString() : moment().toString())
+      .set(
+        this.state.pendingNext
+          ? this.state.pendingNext.toString()
+          : moment().toString()
+      )
 
   clearEvent = () => firebase.database().ref('nextEvent').remove()
 
-  login = () => {
-    auth.signInWithPopup(provider).then((result) => {
-      console.log(result)
-      const user = result.user
-      firebase.database().ref('users').child(user.uid).set(
-        {
-          email: user.email,
-          name: user.displayName,
-          photo: user.photoURL
-        },
-        this.setState({ user })
-      )
-    })
+  login = async () => {
+    const result = await auth.signInWithPopup(provider)
+    let user = await firebase
+      .database()
+      .ref('users')
+      .child(result.user.uid)
+      .once('value')
+
+    if (!user.val()) {
+      if (!result.user.emailVerified) {
+        return
+      }
+
+      await firebase.database().ref('users').child(result.user.uid).set({
+        email: result.user.email,
+        name: result.user.displayName,
+        photo: result.user.photoURL,
+        admin: false
+      })
+
+      user = await firebase
+        .database()
+        .ref('users')
+        .child(result.user.uid)
+        .once('value')
+    }
+
+    this.setState({ user: user.val() })
   }
 
-  logout = () => {
-    auth.signOut().then(() => {
-      this.setState({ user: null })
-    })
-  }
+  logout = () => auth.signOut().then(() => this.setState({ user: null }))
 
   render () {
     return this.state.loading ? (
@@ -82,7 +94,9 @@ class App extends Component {
     ) : (
       <Main>
         <AppBar>
-          <Greeting>{this.state.user ? `Hello, ${this.state.user.name}!` : null}</Greeting>
+          <Greeting>
+            {this.state.user ? `Hello, ${this.state.user.name}!` : null}
+          </Greeting>
           <Title>Am I Smoking</Title>
           {this.state.user ? (
             <CabinButton onClick={this.logout}>Log Out</CabinButton>
@@ -93,7 +107,9 @@ class App extends Component {
         {this.state.user &&
         this.state.user.admin && (
           <Scheduler>
-            <Calendar onChange={(date) => this.setState({ pendingNext: date })} />
+            <Calendar
+              onChange={(date) => this.setState({ pendingNext: date })}
+            />
             <ScheduleButtons>
               <CabinButton onClick={this.clearEvent}>Clear</CabinButton>
               <CabinButton onClick={this.setNextEvent}>Schedule</CabinButton>
@@ -101,24 +117,31 @@ class App extends Component {
           </Scheduler>
         )}
         {this.state.upcoming ? (
-          <Cards>
-            <Card>
-              <CardHeader image='time'>
-                <CardTitle>When</CardTitle>
-              </CardHeader>
-              <CardBody>
-                <Time>
-                  <Moment format='MM/DD/YYYY'>{this.state.next.toString()}</Moment>
-                </Time>
-                <Time>
-                  <Moment format='HH:mm A'>{this.state.next.toString()}</Moment>
-                </Time>
-              </CardBody>
-            </Card>
-            <ConnectedCard subject='Meat' />
-            <ConnectedCard subject='Sides' />
-            <ConnectedCard subject='Beer' />
-          </Cards>
+          <div>
+            <Cards>
+              <Card>
+                <CardHeader image='time'>
+                  <CardTitle>When</CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <Time>
+                    <Moment format='MM/DD/YYYY'>
+                      {this.state.next.toString()}
+                    </Moment>
+                  </Time>
+                  <Time>
+                    <Moment format='HH:mm A'>
+                      {this.state.next.toString()}
+                    </Moment>
+                  </Time>
+                </CardBody>
+              </Card>
+              <ConnectedCard subject='Meat' />
+              <ConnectedCard subject='Sides' />
+              <ConnectedCard subject='Beer' />
+            </Cards>
+            {this.state.user && this.state.user.friend && <Map />}
+          </div>
         ) : (
           <div>No Upcoming Smoking Events</div>
         )}
