@@ -5,7 +5,7 @@ const AppBar = ({ user, onLogout, onLogin }) => (
   <AppBarGrid>
     <Greeting>
       {user ? <Avatar src={user.photo} /> : null}
-      {user ? <Hello>`Hello, ${user.name}!`</Hello> : null}
+      {user ? <Hello>Hello, {user.name}!</Hello> : null}
     </Greeting>
     <Title>Am I Smoking</Title>
     {user ? (

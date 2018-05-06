@@ -11,6 +11,8 @@ import TimeCard from './TimeCard'
 
 import './style.css'
 
+export const Context = React.createContext()
+
 class App extends Component {
   state = {
     loading: true,
@@ -75,7 +77,8 @@ class App extends Component {
         email: result.user.email,
         name: result.user.displayName,
         photo: result.user.photoURL,
-        admin: false
+        admin: false,
+        friend: false
       })
 
       user = await firebase
@@ -95,30 +98,32 @@ class App extends Component {
     return loading ? (
       <Splash />
     ) : (
-      <Main>
-        <AppBar user={user} onLogout={this.logout} onLogin={this.login} />
-        {user &&
-        user.admin && (
-          <Scheduler
-            onChange={(date) => this.setState({ pendingNext: date })}
-            onClear={this.clearEvent}
-            onSchedule={this.setNextEvent}
-          />
-        )}
-        {upcoming ? (
-          <React.Fragment>
-            <Cards>
-              <TimeCard next={next.toString()} />
-              <ConnectedCard subject='Meat' />
-              <ConnectedCard subject='Sides' />
-              <ConnectedCard subject='Beer' />
-            </Cards>
-            {user && user.friend && <Map />}
-          </React.Fragment>
-        ) : (
-          <div>No Upcoming Smoking Events</div>
-        )}
-      </Main>
+      <Context.Provider value={this.state.user}>
+        <Main>
+          <AppBar user={user} onLogout={this.logout} onLogin={this.login} />
+          {user &&
+          user.admin && (
+            <Scheduler
+              onChange={(date) => this.setState({ pendingNext: date })}
+              onClear={this.clearEvent}
+              onSchedule={this.setNextEvent}
+            />
+          )}
+          {upcoming ? (
+            <React.Fragment>
+              <Cards>
+                <TimeCard next={next.toString()} />
+                <ConnectedCard subject='Meat' />
+                <ConnectedCard subject='Sides' />
+                <ConnectedCard subject='Beer' />
+              </Cards>
+              {user && user.friend && <Map />}
+            </React.Fragment>
+          ) : (
+            <div>No Upcoming Smoking Events</div>
+          )}
+        </Main>
+      </Context.Provider>
     )
   }
 }
@@ -127,7 +132,7 @@ export default App
 
 const Splash = styled('div')`
   height: 100vh;
-  background: url('images/splash.jpg');
+  background: url('images/splash_sm.jpg');
   background-size: cover;
   background-position: center;
   filter: blur(10px);

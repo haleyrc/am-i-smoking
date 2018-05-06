@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import styled from 'react-emotion'
 import firebase from 'firebase'
 
+import { Context } from './App'
+
 class ConnectedCard extends Component {
   state = {
     loading: true,
@@ -65,7 +67,15 @@ class ConnectedCard extends Component {
           )}
         </CardBody>
         <CardFooter>
-          <NewItem onClick={this.addItem}>+</NewItem>
+          <Context.Consumer>
+            {(user) => {
+              console.log('context user:', user)
+              return (
+                user &&
+                user.admin && <NewItem onClick={this.addItem}>+</NewItem>
+              )
+            }}
+          </Context.Consumer>
         </CardFooter>
       </Card>
     )
@@ -95,7 +105,7 @@ export const Card = styled('div')`
 
 export const CardHeader = styled('div')`
   background-color: #424242;
-  background: url('${(props) => `images/${props.image}.jpg`}');
+  background: url('${(props) => `images/${props.image}_sm.jpg`}');
   background-size: cover;
   background-position: center;
 `
