@@ -74,68 +74,33 @@ class ConnectedCard extends Component {
 
 export default ConnectedCard
 
-const NewItem = styled('button')`
-  background: none;
-  border: none;
-  font-family: 'Cabin Sketch', cursive;
-  color: rgba(255,255,255,1);
-  font-size: 48px;
-  height: 30px;
-  margin-top: -20px;
-  margin-bottom: 10px;
-  line-height: 40px;
-  padding: 0 10px;
-`
-
-const ItemList = styled('ul')`
-  list-style-type: none;
-`
-const Item = styled('li')`
-  @media(min-width: 1000px) {
-    font-size: 24px;
-  }
-`
-
-const CardFooter = styled('div')`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-`
-
-const CardBody = styled('div')`
+export const CardBody = styled('div')`
   padding-top: 20px;
   padding-bottom: 20px;
   color: white;
-  font-size: 20px;
+  font-size: 24px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   flex: 1;
 `
 
-const Card = styled('div')`
-  margin-left: 20px;
-  margin-right: 20px;
-  margin-top: 30px;
+export const Card = styled('div')`
   background-color: #212121;
   box-shadow: 0 10px 10px rgba(0, 0, 0, .26);
   display: flex;
   flex-direction: column;
-
-  @media(min-width: 800px) {
-    width: calc(50% - 80px);
-    min-width: calc(50% - 80px);
-  }
 `
 
-const CardHeader = styled('div')`
+export const CardHeader = styled('div')`
   background-color: #424242;
   background: url('${(props) => `images/${props.image}.jpg`}');
   background-size: cover;
   background-position: center;
 `
 
-const CardTitle = styled('h2')`
+export const CardTitle = styled('h2')`
   font-family: 'Cabin Sketch', cursive;
   color: rgba(255,255,255,1);
   font-size: 48px;
@@ -154,4 +119,33 @@ const CardTitle = styled('h2')`
   @media(max-width: 367px) {
     font-size: 24px;
   }
+`
+
+const NewItem = styled('button')`
+  background: none;
+  border: none;
+  font-family: 'Cabin Sketch', cursive;
+  color: rgba(255,255,255,1);
+  font-size: 48px;
+  height: 30px;
+  margin-top: -20px;
+  margin-bottom: 10px;
+  line-height: 40px;
+  padding: 0 10px;
+`
+
+const ItemList = styled('ul')`
+  list-style-type: none;
+`
+
+const Item = styled('li')`
+  @media(min-width: 1000px) {
+    font-size: 24px;
+  }
+`
+
+const CardFooter = styled('div')`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
 `

@@ -37,17 +37,28 @@ class MapContainer extends Component {
   }
 
   render () {
-    return <Map ref='map'>loading map...</Map>
+    return (
+      <Map id='map-div'>
+        <MapInner ref='map'>loading map..</MapInner>
+      </Map>
+    )
   }
 }
 
 const Map = styled('div')`
+  grid-column: 1 / -1;
   height: 300px;
-  width: calc(100% - 60px);
-  margin: 30px 20px;
+  width: 100%;
+  padding: 0 20px;
+  margin-top: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
+`
+
+const MapInner = styled('div')`
+  width: 100%;
+  height: 100%;
 `
 
 export default GoogleApiWrapper({ apiKey: config.maps.apiKey })(MapContainer)
