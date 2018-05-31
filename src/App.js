@@ -4,7 +4,7 @@ import styled from 'react-emotion'
 
 import firebase, { auth, provider } from './firebase'
 import ConnectedCard from './Card'
-// import Map from './Map'
+import Map from './Map'
 import AppBar from './AppBar'
 import Scheduler from './Scheduler'
 import TimeCard from './TimeCard'
@@ -125,7 +125,7 @@ class App extends Component {
                 <ConnectedCard subject="Sides" />
                 <ConnectedCard subject="Beer" />
               </Cards>
-              {/* {user && user.friend && <Map />} */}
+              {user && user.friend && <Map />}
             </React.Fragment>
           ) : (
             <Notice>No Upcoming Smoking Events</Notice>
