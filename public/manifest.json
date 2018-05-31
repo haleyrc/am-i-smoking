@@ -14,6 +14,7 @@
     "background_color": "#323232",
     "Scope": "/",
     "start_url": "/",
+    "gcm_sender_id": "103953800507",
     "icons": [
         {
             "src": "images/icons/icon-72x72.png",

@@ -46,6 +46,28 @@ class App extends Component {
                 loading: false
             })
         })
+
+        this.saveMessagingDeviceToken()
+        firebase.messaging().onMessage(msg => console.log(msg))
+        firebase.messaging().setBackgroundMessageHandler(msg => console.log(msg))
+    }
+
+    saveMessagingDeviceToken = () => {
+        firebase.messaging().getToken().then((currentToken) => {
+            if (currentToken) {
+                console.log('Got FCM device token:', currentToken)
+                firebase.database().ref('/fcmTokens').child(currentToken).set(firebase.auth().currentUser.uid)
+            } else {
+                this.requestNotificationsPermissions()
+            }
+        }).catch((err) => console.error('Unable to get messaging token.', err))
+
+    }
+
+    requestNotificationsPermissions = () => {
+        firebase.messaging().requestPermission().then(() => {
+            this.saveMessagingDeviceToken()
+        }).catch(err => console.error('Unable to get permission to notify.', err))
     }
 
     setNextEvent = (date) =>
