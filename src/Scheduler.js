@@ -3,9 +3,9 @@ import styled from 'react-emotion'
 
 import Calendar from './Calendar'
 
-const Scheduler = ({ onChange, onClear, onSchedule }) => (
+const Scheduler = ({ onChange, onClear, onSchedule, startDate }) => (
   <StyledScheduler>
-    <Calendar onChange={onChange} />
+    <Calendar onChange={onChange} startDate={startDate} />
     <ScheduleButton onClick={onClear}>Clear</ScheduleButton>
     <ScheduleButton onClick={onSchedule}>Schedule</ScheduleButton>
   </StyledScheduler>

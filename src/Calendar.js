@@ -6,16 +6,26 @@ import 'react-datepicker/dist/react-datepicker.css'
 
 class Calendar extends Component {
   state = {
-    startDate: moment()
+    startDate: null
   }
 
-  handleChange = (date) => {
+  componentDidMount = () => {
+    const { startDate } = this.props
+    const next = moment(startDate)
+    const now = moment()
+
+    console.log({ next: next.toString(), now: now.toString(), isAfter: next.isAfter(now) })
+    next.isAfter(now) ? this.handleChange(next) : this.handleChange(now)
+  }
+
+  handleChange = date => {
     this.setState({ startDate: date }, () => this.props.onChange(date))
   }
 
-  render () {
+  render() {
     return (
       <DatePicker
+        withPortal
         showTimeSelect
         selected={this.state.startDate}
         onChange={this.handleChange}
