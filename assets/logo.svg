@@ -26,7 +26,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
-     inkscape:cx="-585.00793"
+     inkscape:cx="-817.84809"
      inkscape:cy="771.41631"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -125,25 +125,26 @@
        inkscape:export-ydpi="99.956703" />
     <g
        id="g4149"
-       transform="translate(5.7196039e-4,0.02492395)">
+       transform="matrix(0.79080716,0,0,0.79356761,-99.515576,65.975972)"
+       style="stroke-width:25.24659031;stroke-miterlimit:4;stroke-dasharray:none">
       <path
          sodipodi:nodetypes="cc"
          inkscape:connector-curvature="0"
          id="path4140"
          d="m -564.25339,154.52814 c -119.90504,164.98522 118.69385,163.80677 0,329.97046"
-         style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.6" />
+         style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:25.24659031;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.6" />
       <path
          sodipodi:nodetypes="cc"
          inkscape:connector-curvature="0"
          id="path4140-2"
          d="m -475.41132,154.52814 c -119.90504,164.98521 118.69385,163.80676 0,329.97045"
-         style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.6" />
+         style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:25.24659031;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.6" />
       <path
          sodipodi:nodetypes="cc"
          inkscape:connector-curvature="0"
          id="path4140-7"
          d="m -386.56925,154.52814 c -119.90504,164.98521 118.69385,163.80676 0,329.97045"
-         style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.6" />
+         style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:25.24659031;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.6" />
     </g>
   </g>
 </svg>

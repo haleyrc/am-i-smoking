@@ -1,15 +1,14 @@
-import React, { Component } from 'react'
-import moment from 'moment'
-import styled from 'react-emotion'
+import React, { Component } from "react"
+import moment from "moment"
+import styled from "react-emotion"
 
-import firebase, { auth, provider } from './firebase'
-import ConnectedCard from './Card'
-import Map from './Map'
-import AppBar from './AppBar'
-import Scheduler from './Scheduler'
-import TimeCard from './TimeCard'
+import firebase, { auth, provider } from "./firebase"
+import ConnectedCard from "./Card"
+import AppBar from "./AppBar"
+import Scheduler from "./Scheduler"
+import TimeCard from "./TimeCard"
 
-import './style.css'
+import "./style.css"
 
 export const Context = React.createContext()
 
@@ -27,49 +26,53 @@ class App extends Component {
   }
 
   componentDidMount = async () => {
-    auth.onAuthStateChanged(async lastUser => {
+    auth.onAuthStateChanged(async (lastUser) => {
       if (lastUser) {
         const userRef = firebase
           .database()
-          .ref('users')
+          .ref("users")
           .child(lastUser.uid)
-        userRef.on('value', snapshot => {
+        userRef.on("value", (snapshot) => {
           this.setState({ user: snapshot.val() })
         })
       }
     })
 
-    const nextEventRef = firebase.database().ref('nextEvent')
-    nextEventRef.on('value', snapshot => {
+    const nextEventRef = firebase.database().ref("nextEvent")
+    nextEventRef.on("value", (snapshot) => {
       const next = new Date(snapshot.val())
       const now = new Date()
       this.setState({
-        upcoming: moment(next).isAfter(moment(now).startOf('day')),
+        upcoming: moment(next).isAfter(moment(now).startOf("day")),
         next: next,
         loading: false
       })
     })
   }
 
-  setNextEvent = date =>
+  setNextEvent = (date) =>
     firebase
       .database()
-      .ref('nextEvent')
-      .set(this.state.pendingNext ? this.state.pendingNext.toString() : moment().toString())
+      .ref("nextEvent")
+      .set(
+        this.state.pendingNext
+          ? this.state.pendingNext.toString()
+          : moment().toString()
+      )
 
   clearEvent = () =>
     firebase
       .database()
-      .ref('nextEvent')
+      .ref("nextEvent")
       .remove()
 
   login = async () => {
     const result = await auth.signInWithPopup(provider)
     let user = await firebase
       .database()
-      .ref('users')
+      .ref("users")
       .child(result.user.uid)
-      .once('value')
+      .once("value")
 
     if (!user.val()) {
       if (!result.user.emailVerified) {
@@ -78,7 +81,7 @@ class App extends Component {
 
       await firebase
         .database()
-        .ref('users')
+        .ref("users")
         .child(result.user.uid)
         .set({
           email: result.user.email,
@@ -90,9 +93,9 @@ class App extends Component {
 
       user = await firebase
         .database()
-        .ref('users')
+        .ref("users")
         .child(result.user.uid)
-        .once('value')
+        .once("value")
     }
 
     this.setState({ user: user.val() })
@@ -112,7 +115,7 @@ class App extends Component {
             user.admin && (
               <Scheduler
                 startDate={next}
-                onChange={date => this.setState({ pendingNext: date })}
+                onChange={(date) => this.setState({ pendingNext: date })}
                 onClear={this.clearEvent}
                 onSchedule={this.setNextEvent}
               />
@@ -125,7 +128,6 @@ class App extends Component {
                 <ConnectedCard subject="Sides" />
                 <ConnectedCard subject="Beer" />
               </Cards>
-              {user && user.friend && <Map />}
             </React.Fragment>
           ) : (
             <Notice>No Upcoming Smoking Events</Notice>
@@ -138,7 +140,7 @@ class App extends Component {
 
 export default App
 
-const Notice = styled('div')`
+const Notice = styled("div")`
   flex: 1;
   display: flex;
   justify-content: center;
@@ -146,15 +148,15 @@ const Notice = styled('div')`
   font-size: 2em;
 `
 
-const Splash = styled('div')`
+const Splash = styled("div")`
   height: 100vh;
-  background: url('images/splash_sm.jpg');
+  background: url("images/splash_sm.jpg");
   background-size: cover;
   background-position: center;
   filter: blur(10px);
 `
 
-const Cards = styled('div')`
+const Cards = styled("div")`
   display: grid;
   flex-direction: 1fr;
   padding: 0 20px;
@@ -166,7 +168,7 @@ const Cards = styled('div')`
   }
 `
 
-const Main = styled('div')`
+const Main = styled("div")`
   padding-bottom: 30px;
   display: flex;
   flex-direction: column;
